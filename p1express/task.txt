@@ -1,0 +1,12 @@
+rest api
+
+
+get/users  - list all users
+
+get/users/1 list  user with id 1
+get/users/2 list  user with id 2
+
+post/users- create user
+post/users/1 -  edit the user qith id  1
+
+delete/users/1 - delete the user with id 1
