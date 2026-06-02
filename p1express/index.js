@@ -72,35 +72,21 @@ app.get("/api/users", async (req, response) => {
 //yhan se rest api cahlu h
 app
     .route("/api/users/:id")
-    .get((req, response) => {
-        const id = Number(req.params.id)
-        const user = users.find(user => user.id === id)
-        return response.json(user)
-    })
-    .patch((req, res) => {
-        const id = Number(req.params.id);
-        const body = req.body;
-
-        // Find the user index
-        const userIndex = users.findIndex((user) => user.id === id);
-
-        // If user not found
-        if (userIndex === -1) {
-            return res.json({ status: "error", message: "User not found" });
-        }
-
-        // Update only the fields sent in body (partial update)
-        users[userIndex] = { ...users[userIndex], ...body };
-
-        fs.writeFile("./MOCK_DATA.json", JSON.stringify(users), (err, data) => {
-            return res.json({ status: "success", updatedUser: users[userIndex] });
-        });
+    .get(async (req, response) => {
+        
+        const user = await User.findById(req.params.id);
+        if (!user) return response.status(404).json({error: "user not found"});
+        return response.json(user);
     })
 
-    .delete((req, response) => {
-        //delete your user
-        return response.json({ status: "pending" })
+
+    .patch(async (req, response) => {
+        await User.findByIdAndUpdate(req.params.id, {last_name: "changed"});
+        return response.json({ status: "success" })
     })
+
+   
+    
 
 
 app.post("/api/users", async (req, response) => {
