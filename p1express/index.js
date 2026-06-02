@@ -1,7 +1,5 @@
 const express = require("express");
 
-//const users = require("./MOCK_DATA.json")
-
 const app = express()
 
 const mongoose = require("mongoose")
@@ -55,15 +53,19 @@ app.use((req, response, next) => {
 
 
 
-app.get("/users", (req, response) => {
-    const html = users.map((user) => {
-        return `<ul>${user.first_name} ${user.last_name}</ul>`
-    }).join("")
+app.get("/users", async (req, response) => {
+    const allDbUsers = await User.find({});
+    const html = 
+         `<ul>  
+         ${allDbUsers.map((user) => `<li>${user.first_name} - ${user.email}</li>`).join("")}
+         </ul>`
     response.send(html)
-}
-)
-app.get("/api/users", (req, response) => {
-    return response.json(users)
+})
+
+
+app.get("/api/users", async (req, response) => {
+    const allDbUsers = await User.find({});
+    return response.json(allDbUsers)
 })
 
 
@@ -103,29 +105,32 @@ app
 
 app.post("/api/users", async (req, response) => {
     const body = req.body;
-    if (
-        !body ||
-        !body.first_name ||
-        !body.last_name ||
-        !body.email ||
-        !body.gender ||
-        !body.job_title 
-    ) { 
-        return response.status(400).json({message: "Please provide all required fields" })
+    if (!body || 
+        !body.first_name || 
+        !body.last_name || 
+        !body.email || 
+        !body.gender || 
+        !body.job_title
+    ) {
+        return response.status(400).json({ message: "Please provide all required fields" })
     }
 
-    const result = await User.create({
-    first_name: body.first_name,
-    last_name: body.last_name,
-    email: body.email  , 
-    gender: body.gender,
-    job_title: body.job_title, 
+    try {
+        const result = await User.create({
+            first_name: body.first_name,
+            last_name: body.last_name,
+            email: body.email,
+            gender: body.gender,
+            job_title: body.job_title,
+        })
+        console.log("result", result)
+        return response.status(201).json({ message: "success" })
+    } catch (err) {
+        console.error(err)
+        return response.status(500).json({ message: "Error creating user", error: err.message })
+    }
 })
 
-console.log("result", result)
-return response.status(201).json({ message: "success" })
-
-})
 
 
 
